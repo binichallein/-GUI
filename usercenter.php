@@ -39,6 +39,13 @@ $products = mysqli_query($con, $query);
 
 // 获取所有类别
 $categories = mysqli_query($con, "SELECT * FROM procat");
+
+// 检查用户权限是否为管理员
+$userRoleQuery = "SELECT Role FROM User WHERE UserID = $userID";
+$userRoleResult = mysqli_query($con, $userRoleQuery);
+$userRole = mysqli_fetch_assoc($userRoleResult)['Role'];
+
+$isAdmin = ($userRole === 'Admin');
 ?>
 
 <!DOCTYPE html>
@@ -118,6 +125,18 @@ $categories = mysqli_query($con, "SELECT * FROM procat");
 
         <h2><a href="cart.php">查看购物车</a></h2>
         <h2><a href="order.php">查看我的订单</a></h2>  <!-- Added order page link -->
+        <h2><a href="my_likes.php">查看我的收藏</a></h2>
+
+        <?php if ($isAdmin) { ?>
+            <h2><a href="complaints.php">查看用户投诉</a></h2>
+        <?php } ?>
+
+        <h2><a href="user_violation.php">查看违规记录</a></h2> <!-- Added link for violation records -->
+        <?php if ($isAdmin) { ?>
+        <h2><a href="view_violations.php">查看违规用户</a></h2>
+        <?php } 
+    ?>
+
     </div>
 
     <div class="product-list">

@@ -33,7 +33,7 @@ $product = mysqli_fetch_assoc($result);
 // 检查用户是否为管理员或该商品发布者
 $isAuthorized = ($role === 'Admin' || $userid === intval($product['UserID']));
 
-// 加入购物车功能
+// 收藏商品功能
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     if ($action === 'add_to_cart') {
@@ -73,6 +73,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 echo "<script>alert('无法加入购物车，请稍后再试！');</script>";
                 echo "Error: " . mysqli_error($con);  // 显示错误信息
             }
+        }
+    } elseif ($action === 'remove_product') {
+        // 下架商品逻辑
+        if ($isAuthorized) {
+            $updateQuery = "UPDATE spepro SET ProStatus = 'Inactive' WHERE ProID = '$productID'";
+            if (mysqli_query($con, $updateQuery)) {
+                echo "<script>alert('商品已成功下架！'); window.location.href = 'homepage.php';</script>";
+                exit();
+            } else {
+                echo "<script>alert('下架失败，请稍后再试！');</script>";
+                echo "Error: " . mysqli_error($con);
+            }
+        } else {
+            echo "<script>alert('您无权下架此商品！');</script>";
+        }
+    } elseif ($action === 'add_to_likes') {
+        // 收藏商品
+        $query = "SELECT * FROM likes WHERE UserID = '$userid' AND ProID = '$productID'";
+        $result = mysqli_query($con, $query);
+
+        if (mysqli_num_rows($result) == 0) {
+            // 商品不在收藏中，插入新的记录
+            $query = "INSERT INTO likes (UserID, ProID) VALUES ('$userid', '$productID')";
+            if (mysqli_query($con, $query)) {
+                echo "<script>alert('商品已加入收藏！');</script>";
+            } else {
+                echo "<script>alert('无法加入收藏，请稍后再试！');</script>";
+                echo "Error: " . mysqli_error($con);  // 显示错误信息
+            }
+        } else {
+            echo "<script>alert('该商品已经在您的收藏夹中！');</script>";
         }
     }
 }
@@ -134,7 +165,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $query = "SELECT UserName FROM User WHERE UserID = '{$product['UserID']}'";
                 $result = mysqli_query($con, $query);
                 $owner = $result ? mysqli_fetch_assoc($result) : null;
-                // echo htmlspecialchars($owner['UserName'] ?? '未知');
                 if (isset($owner['UserName'])) {
                     echo htmlspecialchars($owner['UserName']);
                 } else {
@@ -145,12 +175,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         </div>
 
         <div class="actions">
-        <form method="POST" style="display:inline;">
-    <input type="hidden" name="action" value="add_to_cart">
-    <label for="quantity">数量：</label>
-    <input type="number" name="quantity" id="quantity" value="1" min="1" required>
-    <button type="submit">加入购物车</button>
-</form>
+            <form method="POST" style="display:inline;">
+                <input type="hidden" name="action" value="add_to_cart">
+                <label for="quantity">数量：</label>
+                <input type="number" name="quantity" id="quantity" value="1" min="1" required>
+                <button type="submit">加入购物车</button>
+            </form>
 
             <?php if ($isAuthorized) { ?>
             <form method="POST" style="display:inline;">
@@ -160,9 +190,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             <?php } ?>
 
             <form method="POST" style="display:inline;">
-                <input type="hidden" name="action" value="complain">
-                <textarea name="complaint" placeholder="输入投诉理由" required style="width: 200px;"></textarea>
-                <button type="submit" style="background-color: orange;">投诉商品</button>
+                <input type="hidden" name="action" value="add_to_likes">
+                <button type="submit" style="background-color: yellow;">收藏商品</button>
             </form>
         </div>
     </div>

@@ -22,7 +22,8 @@ if (!$categories) {
 
 // 获取第一个类别下的商品
 $selectedCategory = isset($_GET['cat']) ? intval($_GET['cat']) : 1;
-$query = "SELECT * FROM spepro WHERE CatID = '$selectedCategory'";
+$query = "SELECT * FROM spepro WHERE CatID = '$selectedCategory' AND ProStatus not in ('Frozen','Inactive')
+";
 $products = mysqli_query($con, $query);
 if (!$products) {
     echo "Error fetching products: " . mysqli_error($con);
