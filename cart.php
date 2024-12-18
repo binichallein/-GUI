@@ -112,7 +112,7 @@ while ($item = mysqli_fetch_assoc($cartItems)) {
 </head>
 <body>
     <h1>我的购物车</h1>
-
+    <a href="usercenter.php">返回用户中心</a>
     <?php if (empty($cartData)) { ?>
         <p>您的购物车是空的。</p>
     <?php } else { ?>

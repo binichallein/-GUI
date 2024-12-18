@@ -91,6 +91,7 @@ $isAdmin = ($userRole === 'Admin');
 <body>
     <div class="header">
         <h1>欢迎来到用户中心</h1>
+        <a href="homepage.php">返回平台主页</a>
         <p>用户：<?php echo htmlspecialchars($username); ?></p>
     </div>
 

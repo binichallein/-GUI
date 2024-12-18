@@ -144,6 +144,7 @@ $complaints = mysqli_query($con, $complaintsQuery);
 <body>
     <div class="header">
         <h1>用户投诉管理</h1>
+        <a href="usercenter.php">返回用户中心</a>
         <p>管理员：<?php echo htmlspecialchars($username); ?></p>
     </div>
 

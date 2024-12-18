@@ -65,6 +65,7 @@ $violations = mysqli_query($con, $violationsQuery);
 <body>
     <div class="header">
         <h1>违规记录</h1>
+        <a href="usercenter.php">返回用户中心</a>
         <p>用户：<?php echo htmlspecialchars($username); ?></p>
     </div>
 

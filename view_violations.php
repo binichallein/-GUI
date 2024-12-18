@@ -75,6 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 <body>
     <div class="header">
         <h1>违规用户管理</h1>
+
+        <a href="usercenter.php">返回用户中心</a>
     </div>
 
     <div class="actions">

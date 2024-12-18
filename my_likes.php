@@ -65,6 +65,7 @@ if (!$results) {
 <body>
     <div class="container">
         <h1>我的收藏</h1>
+        <a href="usercenter.php">返回用户中心</a>
         <div class="product-list">
             <?php 
             // 检查结果是否为空

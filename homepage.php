@@ -93,6 +93,7 @@ if (!$products) {
 <body>
 <div class="header">
     <h1>特色时令商品集市平台</h1>
+    <a href="login.php">返回登录界面</a>
     <div>
         <p>欢迎，<a href="usercenter.php"><?php echo htmlspecialchars($username); ?></a>!</p>
     </div>

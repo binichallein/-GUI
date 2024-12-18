@@ -156,6 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 <body>
     <div class="container">
         <h1>商品详情</h1>
+        <a href="homepage.php">返回平台主页</a>
         <div class="product">
             <h2><?php echo htmlspecialchars($product['ProName']); ?></h2>
             <p>价格：<?php echo htmlspecialchars($product['Price']); ?> 元</p>
