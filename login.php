@@ -11,11 +11,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if (mysqli_num_rows($result) == 1) {
             $user = mysqli_fetch_assoc($result);
-            $_SESSION['username'] = $username;
-            $_SESSION['userid'] = $user['UserID'];
-            $_SESSION['role'] = $user['Role'];
-            header('Location: homepage.php');
-            exit();
+            $status = $user['Status'];
+            if($status=='Frozen'){
+                echo "<script>alert('用户已被冻结！');</script>";
+                
+            }else{
+
+                $_SESSION['username'] = $username;
+                $_SESSION['userid'] = $user['UserID'];
+                $_SESSION['role'] = $user['Role'];
+    
+                header('Location: homepage.php');
+                exit();
+            }
         } else {
             echo "<script>alert('用户名或密码错误！');</script>";
         }
