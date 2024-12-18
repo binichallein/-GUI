@@ -14,7 +14,7 @@ $user = mysqli_fetch_assoc($userResult);
 $userID = $user['UserID'];
 
 // Fetch cart items for the user from the database
-$cartQuery = "SELECT c.ProID, c.ProName, c.Quantity, p.Price 
+$cartQuery = "SELECT c.ProID, c.ProName, c.Quantity, p.Price, p.Storage 
               FROM cart c 
               JOIN spepro p ON c.ProID = p.ProID 
               WHERE c.UserID = $userID";
@@ -28,25 +28,44 @@ if (mysqli_num_rows($cartItems) == 0) {
 
 // Proceed with checkout logic
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Process the payment (dummy process here)
-    // After payment, insert into Dingdan table
     $totalPrice = 0;
-    while ($item = mysqli_fetch_assoc($cartItems)) {
-        $totalPrice += $item['Price'] * $item['Quantity'];
+    $allItemsAvailable = true;
 
-        // Insert each item into the Dingdan table
-        $orderTime = date("Y-m-d H:i:s"); // Get the current timestamp
-        $orderStatus = "未完成"; // Example: Set initial order status to "待付款"
-        $insertOrderQuery = "INSERT INTO Dingdan (ProID, UserID, OrderTime, OrderStatus, Quantity) 
-                             VALUES (" . $item['ProID'] . ", $userID, '$orderTime', '$orderStatus', " . $item['Quantity'] . ")";
-        mysqli_query($con, $insertOrderQuery);
+    // First, validate stock availability
+    while ($item = mysqli_fetch_assoc($cartItems)) {
+        if ($item['Quantity'] > $item['Storage']) {
+            echo "<p>商品 " . htmlspecialchars($item['ProName']) . " 库存不足，请调整购买数量。</p>";
+            $allItemsAvailable = false;
+            break;
+        }
     }
 
-    // Clear the cart after successful order
-    $deleteCartQuery = "DELETE FROM cart WHERE UserID = $userID";
-    mysqli_query($con, $deleteCartQuery);
+    // If all items are available, proceed
+    if ($allItemsAvailable) {
+        mysqli_data_seek($cartItems, 0); // Reset result pointer to the beginning
 
-    echo "<p>结算成功，感谢购买！</p>";
+        while ($item = mysqli_fetch_assoc($cartItems)) {
+            $totalPrice += $item['Price'] * $item['Quantity'];
+
+            // Insert each item into the Dingdan table
+            $orderTime = date("Y-m-d H:i:s");
+            $orderStatus = "未完成"; // Example: Set initial order status to "待付款"
+            $insertOrderQuery = "INSERT INTO Dingdan (ProID, UserID, OrderTime, OrderStatus, Quantity) 
+                                 VALUES (" . $item['ProID'] . ", $userID, '$orderTime', '$orderStatus', " . $item['Quantity'] . ")";
+            mysqli_query($con, $insertOrderQuery);
+
+            // Deduct stock from the spepro table
+            $newStorage = $item['Storage'] - $item['Quantity'];
+            $updateStockQuery = "UPDATE spepro SET Storage = $newStorage WHERE ProID = " . $item['ProID'];
+            mysqli_query($con, $updateStockQuery);
+        }
+
+        // Clear the cart after successful order
+        $deleteCartQuery = "DELETE FROM cart WHERE UserID = $userID";
+        mysqli_query($con, $deleteCartQuery);
+
+        echo "<p>结算成功，感谢购买！</p>";
+    }
 }
 ?>
 
